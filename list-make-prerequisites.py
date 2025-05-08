@@ -38,35 +38,30 @@ def parse_args():
 
 # Function to parse all rules from 'make -pq' output
 def _parse_makefile():
-    try:
-        # Run 'make -pq' and capture its output
-        result = subprocess.run(
-            ['make', '-pq'],
-            capture_output=True,
-            text=True)
+    # Run 'make -pq' and capture its output
+    result = subprocess.run(
+        ['make', '-pq'],
+        capture_output=True,
+        text=True)
 
-        # Initialize an empty dictionary to store the targets and their prerequisites
-        targets = {}
+    # Initialize an empty dictionary to store the targets and their prerequisites
+    targets = {}
 
-        # Split the output by lines
-        make_output = result.stdout.splitlines()
+    # Split the output by lines
+    make_output = result.stdout.splitlines()
 
-        # Regex to capture target and its prerequisites
-        target_pattern = re.compile(r'^([^\s]+)\s*:\s*([^\|]*)')
+    # Regex to capture target and its prerequisites
+    target_pattern = re.compile(r'^([^\s]+)\s*:\s*([^\|]*)')
 
-        # Parse the make output
-        for line in make_output:
-            match = target_pattern.match(line)
-            if match:
-                target = match.group(1)
-                prerequisites = match.group(2).split()
-                targets[target] = prerequisites
+    # Parse the make output
+    for line in make_output:
+        match = target_pattern.match(line)
+        if match:
+            target = match.group(1)
+            prerequisites = match.group(2).split()
+            targets[target] = prerequisites
 
-        return targets
-
-    except Exception as e:
-        print(f"An error occurred: {e}")
-        sys.exit(1)
+    return targets
 
 
 # Internal function used for recursion. Takes additional arguments to keep track of state.
@@ -130,8 +125,7 @@ def list_prerequisites(target, recursive=False, debug=False):
         return leaf_prerequisites
 
     else:
-        print(f"Target '{args.target}' not found in the Makefile.")
-        sys.exit(1)
+        raise Exception(f"Target '{args.target}' not found in the Makefile.")
 
 
 def hash_files(file_list):
