@@ -3,6 +3,7 @@
 # Author: Luca Colagrande
 
 from anytree import Node, RenderTree
+from functools import lru_cache
 from pathlib import Path
 import hashlib
 import re
@@ -11,6 +12,7 @@ import sys
 
 
 # Function to parse all rules from 'make -pq' output
+@lru_cache(maxsize=4)
 def _parse_makefile():
     # Run 'make -pq' and capture its output
     result = subprocess.run(
