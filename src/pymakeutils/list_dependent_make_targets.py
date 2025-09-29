@@ -31,13 +31,17 @@ def parse_args():
         '--debug',
         action='store_true',
         help="Enable debug output to show intermediate steps")
+    parser.add_argument(
+        '-f',
+        '--flags',
+        help="Flags to pass to `make -pq`")
     return parser.parse_args()
 
 
-def emit_makefrag(prerequisites, recursive, debug):
+def emit_makefrag(prerequisites, recursive, debug, flags):
     s = "-include "
     for p in sorted(set(prerequisites)):
-        targets = list_dependents(p, recursive=recursive, debug=debug)
+        targets = list_dependents(p, recursive=recursive, debug=debug, flags=flags)
 
         if not targets:
             print(f'Warning: no targets depend on prerequisite {p}.', file=sys.stderr)
@@ -48,12 +52,12 @@ def emit_makefrag(prerequisites, recursive, debug):
     print(s.strip())
 
 
-def emit_targets(prerequisites, recursive, debug):
+def emit_targets(prerequisites, recursive, debug, flags):
     # Take the union of all dependent targets for the given prerequisites
     all_deps = set()
     for p in prerequisites:
         all_deps.update(
-            list_dependents(p, recursive=recursive, debug=debug)
+            list_dependents(p, recursive=recursive, debug=debug, flags=flags)
         )
     print('\n'.join(sorted(all_deps)))
 
@@ -65,7 +69,7 @@ def main():
         emit = emit_makefrag
     else:
         emit = emit_targets
-    emit(args.prerequisites, args.recursive, args.debug)
+    emit(args.prerequisites, args.recursive, args.debug, args.flags)
 
 
 if __name__ == "__main__":

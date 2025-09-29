@@ -13,10 +13,13 @@ import sys
 
 # Function to parse all rules from 'make -pq' output
 @lru_cache(maxsize=4)
-def _parse_makefile():
+def _parse_makefile(flags=''):
     # Run 'make -pq' and capture its output
+    cmd = ['make', '-pq']
+    if flags:
+        cmd.extend(flags.split())
     result = subprocess.run(
-        ['make', '-pq'],
+        cmd,
         capture_output=True,
         text=True)
 
@@ -108,10 +111,10 @@ def _get_dependents_recursive(prerequisite, prerequisites, recursive=False):
 
 # Return a sorted list of targets that depend on `prerequisite`.
 # If `recursive` is False, only direct dependents are returned.
-def list_dependents(prerequisite, recursive=False, debug=False):
+def list_dependents(prerequisite, recursive=False, debug=False, flags=''):
 
     # Parse the makefile
-    targets = _parse_makefile()
+    targets = _parse_makefile(flags)
     prerequisites = _build_reverse_dict(targets)
 
     # Handle non-existing prerequisite
