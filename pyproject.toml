@@ -23,7 +23,13 @@ where = ["src"]
 [tool.setuptools.dynamic]
 dependencies = { file = ["requirements.txt"] }
 
+[project.optional-dependencies]
+test = ["pytest"]
+
 # Expose your scripts as console commands
 [project.scripts]
 list-make-prerequisites = "pymakeutils.list_make_prerequisites:main"
 list-dependent-make-targets = "pymakeutils.list_dependent_make_targets:main"
+
+[tool.pytest.ini_options]
+testpaths = ["test"]
