@@ -38,3 +38,13 @@ def test_list_dependent_targets_non_recursive():
 def test_list_dependent_targets_recursive():
     targets = run_cli('list-dependent-make-targets', 'preprereq1', '--recursive').splitlines()
     assert targets == ['.DEFAULT_GOAL', 'prereq', 'test1']
+
+
+def test_list_prerequisites_with_makecmdgoals_conditional_prerequisite():
+    # `conditional`'s Makefile rule `-include`s a generated dependency file only when
+    # `conditional` itself is passed as an actual Make goal (see test/Makefile). This
+    # guards against a regression where the target was only used to look up its
+    # prerequisites in a goal-less `make -pq` database dump, silently hiding any
+    # prerequisite that depended on MAKECMDGOALS-conditional inclusion logic.
+    prerequisites = run_cli('list-make-prerequisites', 'conditional', '--recursive').splitlines()
+    assert prerequisites == ['hiddenprereq', 'standaloneprereq']
