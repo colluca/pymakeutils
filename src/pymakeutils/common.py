@@ -11,11 +11,18 @@ import subprocess
 import sys
 
 
-# Function to parse all rules from 'make -pq' output
+# Function to parse all rules from 'make -pq' output.
+# `goal` is passed as an actual Make goal (rather than only being used to look up its
+# prerequisites in the returned dict), so that MAKECMDGOALS-conditional logic in the
+# Makefile (e.g. `include`s gated on the requested goal) is exercised the same way it
+# would be for a real `make <goal>` invocation, and any prerequisite it generates as a
+# side effect (e.g. an auto-generated dependency file) is reflected in the database.
 @lru_cache(maxsize=4)
-def _parse_makefile(flags=''):
+def _parse_makefile(flags='', goal=None):
     # Run 'make -pq' and capture its output
     cmd = ['make', '-pq']
+    if goal:
+        cmd.append(goal)
     if flags:
         cmd.extend(flags.split())
     result = subprocess.run(
@@ -59,8 +66,8 @@ def _get_prerequisites_recursive(target, targets, recursive=False):
 # Function to list prerequisites, optionally recursively
 def list_prerequisites(target, recursive=False, debug=False):
 
-    # Parse the makefile
-    targets = _parse_makefile()
+    # Parse the makefile, passing `target` as the actual Make goal (see `_parse_makefile`)
+    targets = _parse_makefile(goal=target)
 
     # Handle non-existing target
     if target not in targets:
