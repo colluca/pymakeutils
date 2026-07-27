@@ -14,24 +14,6 @@ jobs:
     - uses: actions/checkout@v4
     - name: Install package
       run: |
-        python -m pip install .
-    - name: List prerequisites non-recursively
-      working-directory: test
-      run: |
-        test "$(list-make-prerequisites test1)" = "prereq"
-    - name: List prerequisites recursively
-      working-directory: test
-      run: |
-        test "$(list-make-prerequisites test1 --recursive | xargs)" = "preprereq1 preprereq2"
-    - name: Hash directory prerequisite
-      working-directory: test
-      run: |
-        test "$(list-make-prerequisites test2 --recursive --hash)" = "c64a77871513eadd52ec0e278bfbac1db866b77f66ebe91725b378b8bf43e29c"
-    - name: List dependent targets non-recursively
-      working-directory: test
-      run: |
-        test $(list-dependent-make-targets preprereq1) = prereq
-    - name: List dependent targets recursively
-      working-directory: test
-      run: |
-        test "$(list-dependent-make-targets preprereq1 -r | xargs)" = ".DEFAULT_GOAL prereq test1"
+        python -m pip install .[test]
+    - name: Run tests
+      run: pytest
